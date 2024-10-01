@@ -11,23 +11,23 @@ import java.sql.PreparedStatement; // 동적sql
 
 public class DBManager {
 
-	private String driver = "com.mysql.cj.jdbc.Driver";
-	private String url = "jdbc:mysql://127.0.0.1:3306/phonedb?severTimeZone=UTC";
-	private String id = "root";
-	private String pw = "6532";
+	private static String driver = "com.mysql.cj.jdbc.Driver";
+	private static String url = "jdbc:mysql://127.0.0.1:3306/phonedb?severTimeZone=UTC";
+	private static String id = "root";
+	private static String pw = "6532";
 
-	private Connection conn = null;
-	private Statement stmt = null;
+	private static Connection conn = null;
+	private static Statement stmt = null;
 
 	public DBManager() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public void initDBConnect() { // db 연동
+	public static void initDBConnect() { // db 연동
 		try {
 			Class.forName(driver); // driver을 메모리에 로드한다. (driver: 클래스이다.)
-			this.conn = DriverManager.getConnection(this.url, this.id, this.pw); // getConnection: 커넥션 객체를 만들어줌
-			this.stmt = conn.createStatement(); // 연결객체를 통해서 명령객체가 만들어져서 stmt에 넣는다.
+			DBManager.conn = DriverManager.getConnection(DBManager.url, DBManager.id, DBManager.pw); // getConnection: 커넥션 객체를 만들어줌
+			DBManager.stmt = conn.createStatement(); // 연결객체를 통해서 명령객체가 만들어져서 stmt에 넣는다.
 
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
@@ -36,7 +36,7 @@ public class DBManager {
 		}
 	}
 
-	public int recordCount() {
+	public static int recordCount() {
 		String sql = "select count(*) as cnt from usertbl";
 		int recount = 0;
 		try {
@@ -54,8 +54,8 @@ public class DBManager {
 		return recount;
 	}
 
-	public User[] allFetch() {
-		int recount = this.recordCount();
+	public static User[] allFetch() {
+		int recount = DBManager.recordCount();
 		User[] userList = new User[recount];
 		int userCount = 0;
 		String sql = "select * from usertbl";
@@ -84,11 +84,11 @@ public class DBManager {
 		return userList;
 	}
 
-	public void selectUser(String username) {
+	public static void selectUser(String username) {
 		String sql = "select * from usertbl where username=?";
 		try {
 //			ResultSet rs = stmt.executeQuery(sql);
-			PreparedStatement pstmt = this.conn.prepareStatement(sql);
+			PreparedStatement pstmt = DBManager.conn.prepareStatement(sql);
 			pstmt.setString(1, username);
 			ResultSet rs = pstmt.executeQuery();
 
@@ -113,12 +113,12 @@ public class DBManager {
 		}
 	}
 
-	public void inputUser(User user) {
+	public static void inputUser(User user) {
 		String sql = "insert into usertbl values(?, ?, ?, ?, ?, ?, ?, ?)";
 
 		try {
 //			ResultSet rs = stmt.executeQuery(sql);
-			PreparedStatement pstmt = this.conn.prepareStatement(sql);
+			PreparedStatement pstmt = DBManager.conn.prepareStatement(sql);
 			pstmt.setString(1, user.getUserId());
 			pstmt.setString(2, user.getUserName());
 			pstmt.setInt(3, user.getBirthYear());
@@ -134,10 +134,10 @@ public class DBManager {
 		}
 	}
 
-	public void releaseDB() {
+	public static void releaseDB() {
 		try {
-			this.conn.close();
-			this.stmt.close();
+			DBManager.conn.close();
+			DBManager.stmt.close();
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
